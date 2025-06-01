@@ -1,4 +1,3 @@
-````markdown
 # Installation & Configuration de la Plateforme
 
 ## 1. Cloner le dépôt
