@@ -1,37 +1,96 @@
 {% extends 'dashboard/UserDashboard.html.twig' %}
 
-{% block title %}Statistiques Formateur{% endblock %}
+{% block title %}📊 Mes Statistiques{% endblock %}
 
 {% block body %}
     <div class="container py-4">
         <h1 class="mb-4">📊 Mes Statistiques</h1>
 
-        <ul class="list-group mb-4">
-            <li class="list-group-item">Total Formations créées : <strong>{{ totalFormations }}</strong></li>
-            <li class="list-group-item">Formations publiées : <strong>{{ publishedCount }}</strong></li>
-            <li class="list-group-item">Total Revenu généré : <strong>{{ totalRevenue }} €</strong></li>
-        </ul>
+        <!-- KPI Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Formations créées</h5>
+                        <p class="card-text display-6">{{ totalFormations }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Formations publiées</h5>
+                        <p class="card-text display-6">{{ publishedCount }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Revenu généré (€)</h5>
+                        <p class="card-text display-6">{{ totalRevenue }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <h3>Ventes par Mois :</h3>
-        <table class="table table-bordered">
-            <thead>
-            <tr>
-                <th>Mois</th>
-                <th>Nombre de Ventes</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for mois, count in ventesParMois %}
-                <tr>
-                    <td>{{ mois }}</td>
-                    <td>{{ count }}</td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="2" class="text-muted text-center">Aucune vente enregistrée.</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <!-- Charts -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h4>Formations publiées</h4>
+                <canvas id="pieFormations"></canvas>
+            </div>
+            <div class="col-md-6">
+                <h4>Ventes par Mois</h4>
+                <canvas id="lineVentes"></canvas>
+            </div>
+        </div>
+
     </div>
+
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Data for Pie Chart (publiées vs non publiées)
+        const totalFormations = {{ totalFormations }};
+        const publishedCount = {{ publishedCount }};
+        const nonPublishedCount = totalFormations - publishedCount;
+
+        new Chart(document.getElementById('lineVentes'), {
+            type: 'line',
+            data: {
+                labels: ventesLabels,
+                datasets: [{
+                    label: 'Nombre de ventes',
+                    data: ventesValues,
+                    fill: false,
+                    borderColor: '#007bff',
+                    tension: 0.1
+                }]
+            }
+        });
+
+
+        // Data for Line Chart (ventes par mois)
+        const ventesData = {{ ventesParMois|json_encode|raw }};
+        const ventesLabels = Object.keys(ventesData);
+        const ventesValues = Object.values(ventesData);
+
+
+
+        new Chart(document.getElementById('lineVentes'), {
+            type: 'line',
+            data: {
+                labels: ventesLabels,
+                datasets: [{
+                    label: 'Nombre de ventes',
+                    data: ventesData,
+                    fill: false,
+                    borderColor: '#007bff',
+                    tension: 0.1
+                }]
+            }
+        });
+    </script>
 {% endblock %}
