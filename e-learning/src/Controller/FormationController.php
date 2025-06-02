@@ -20,63 +20,63 @@ use App\Repository\CommandeRepository;
 final class FormationController extends AbstractController
 {
 
-    #[Route('/stats', name: 'app_formation_stats', methods: ['GET'])]
-    public function stats(
-        FormationRepository $formationRepository,
-        FormateurRepository $formateurRepository,
-        CommandeRepository $commandeRepository
-    ): Response
-    {
-        // 1️⃣ Get current formateur
-        $formateur = $formateurRepository->findOneBy(['user' => $this->getUser()]);
+        #[Route('/stats', name: 'app_formation_stats', methods: ['GET'])]
+        public function stats(
+            FormationRepository $formationRepository,
+            FormateurRepository $formateurRepository,
+            CommandeRepository $commandeRepository
+        ): Response
+        {
+            // 1️⃣ Get current formateur
+            $formateur = $formateurRepository->findOneBy(['user' => $this->getUser()]);
 
-        // 2️⃣ Get his formations
-        $formations = $formationRepository->findBy(['formateur' => $formateur]);
+            // 2️⃣ Get his formations
+            $formations = $formationRepository->findBy(['formateur' => $formateur]);
 
-        // 3️⃣ Get commandes (joined on panier → produitChoisi → formation)
-        // Simple version first → get all commandes
-        $commandes = $commandeRepository->findAll();
+            // 3️⃣ Get commandes (joined on panier → produitChoisi → formation)
+            // Simple version first → get all commandes
+            $commandes = $commandeRepository->findAll();
 
-        // 4️⃣ KPIs
-        $totalFormations = count($formations);
-        $publishedCount = 0;
-        foreach ($formations as $formation) {
-            if ($formation->isPublished()) {
-                $publishedCount++;
-            }
-        }
-
-        $totalRevenue = 0;
-        $ventesParMois = [];
-
-        foreach ($commandes as $commande) {
-            if ($commande->getStatut()->value !== 'PAID') continue; // skip unpaid commandes
-
-            $panier = $commande->getPanier();
-            foreach ($panier->getProduits() as $produitChoisi) {
-                $produit = $produitChoisi->getProduit();
-
-                // Check if this produit is a Formation and belongs to current Formateur
-                if ($produit instanceof Formation && $produit->getFormateur() === $formateur) {
-                    $totalRevenue += $produitChoisi->getPrix();
-
-                    // Ventes par mois
-                    $mois = $commande->getDateCommande()->format('Y-m');
-                    if (!isset($ventesParMois[$mois])) {
-                        $ventesParMois[$mois] = 0;
-                    }
-                    $ventesParMois[$mois]++;
+            // 4️⃣ KPIs
+            $totalFormations = count($formations);
+            $publishedCount = 0;
+            foreach ($formations as $formation) {
+                if ($formation->isPublished()) {
+                    $publishedCount++;
                 }
             }
-        }
 
-        return $this->render('formation/stats.html.twig', [
-            'totalFormations' => $totalFormations,
-            'publishedCount' => $publishedCount,
-            'totalRevenue' => $totalRevenue,
-            'ventesParMois' => $ventesParMois,
-        ]);
-    }
+            $totalRevenue = 0;
+            $ventesParMois = [];
+
+            foreach ($commandes as $commande) {
+                if ($commande->getStatut()->value !== 'PAID') continue; // skip unpaid commandes
+
+                $panier = $commande->getPanier();
+                foreach ($panier->getProduits() as $produitChoisi) {
+                    $produit = $produitChoisi->getProduit();
+
+                    // Check if this produit is a Formation and belongs to current Formateur
+                    if ($produit instanceof Formation && $produit->getFormateur() === $formateur) {
+                        $totalRevenue += $produitChoisi->getPrix();
+
+                        // Ventes par mois
+                        $mois = $commande->getDateCommande()->format('Y-m');
+                        if (!isset($ventesParMois[$mois])) {
+                            $ventesParMois[$mois] = 0;
+                        }
+                        $ventesParMois[$mois]++;
+                    }
+                }
+            }
+
+            return $this->render('formation/stats.html.twig', [
+                'totalFormations' => $totalFormations,
+                'publishedCount' => $publishedCount,
+                'totalRevenue' => $totalRevenue,
+                'ventesParMois' => $ventesParMois,
+            ]);
+        }
     #[Route(name: 'app_formation_index', methods: ['GET'])]
     public function index(FormationRepository $formationRepository,FormateurRepository $formateurRepostiory): Response
     {

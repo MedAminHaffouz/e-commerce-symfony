@@ -32,7 +32,7 @@ class Formation extends Produit
     public function __construct()
     {
         //$this->formateurs = new ArrayCollection();
-        parent::__construct();
+
         $this->createdAt = new \DateTimeImmutable();
     }
 
