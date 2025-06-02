@@ -31,6 +31,11 @@ class Commande
     #[ORM\Column]
     private ?\DateTime $dateCommande = null;
 
+    public function __construct()
+    {
+        $this->dateCommande = new \DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;

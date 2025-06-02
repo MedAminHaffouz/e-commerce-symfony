@@ -121,4 +121,3 @@ php bin/console app:create-admin
 
 ✅ Prêt à tester la plateforme !
 
-
