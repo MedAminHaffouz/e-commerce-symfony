@@ -26,9 +26,14 @@ class Formation extends Produit
    /* #[ORM\ManyToMany(targetEntity: Formateur::class, mappedBy: 'formation_created')]
     private Collection $formateurs;*/
 
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private ?\DateTimeInterface $createdAt = null;
+
     public function __construct()
     {
         //$this->formateurs = new ArrayCollection();
+        parent::__construct();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getPdfFilename(): ?string
@@ -63,6 +68,18 @@ class Formation extends Produit
     public function setPublished(bool $published): static
     {
         $this->published = $published;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

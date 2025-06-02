@@ -1,4 +1,3 @@
-````markdown
 # Installation & Configuration de la Plateforme
 
 ## 1. Cloner le dépôt
@@ -121,5 +120,4 @@ php bin/console app:create-admin
 * MailHog : [http://localhost:8025](http://localhost:8025)
 
 ✅ Prêt à tester la plateforme !
-
 
